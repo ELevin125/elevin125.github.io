@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emil Levin — Unity developer</title>
+<meta name="description" content="Emil Levin — Unity developer building real-time 3D software for kiosk, iOS and Android. Gameplay, shaders, UI and tooling.">
+<meta name="theme-color" content="#131416">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Emil Levin — Unity developer">
+<meta property="og:description" content="Real-time 3D software that ships to real hardware. Gameplay, shaders, UI and tooling.">
+<meta property="og:url" content="https://emil-levin.github.io/">
+<meta property="og:image" content="https://emil-levin.github.io/assets/images/web/inrange-1.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#131416; --paper-2:#1C1E21; --ink:#E4E1D8; --ink-soft:#8B8C88;
+  --spot:#E0592F; --rule:#33363A;
+  --sans:'Zen Kaku Gothic New',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 28px 96px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--spot);outline-offset:3px}
+
+.titleblock{border-bottom:2px solid var(--ink);padding:38px 0 14px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:24px}
+.titleblock h1{font-size:clamp(38px,7vw,66px);font-weight:700;letter-spacing:-.03em;line-height:.94}
+.titleblock h1 span{color:var(--spot)}
+.role{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;color:var(--ink-soft)}
+.docmeta{font-family:var(--mono);font-size:11px;line-height:1.9;text-align:right;color:var(--ink-soft)}
+.docmeta b{color:var(--ink);font-weight:500}
+
+.thesis{padding:34px 0 40px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:start}
+.lead{font-size:clamp(19px,2.4vw,25px);line-height:1.4;letter-spacing:-.01em;max-width:26ch}
+.sub{font-size:15px;color:var(--ink-soft);margin-top:16px;max-width:46ch}
+.keyfacts{border-top:2px solid var(--ink);padding-top:10px}
+.kf{display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:12px}
+.kf span:first-child{color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+
+.sec{margin-top:64px}
+.sechead{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.sechead h2{font-size:15px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono)}
+.count{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-left:auto}
+
+.entry{display:grid;grid-template-columns:132px minmax(0,1fr);gap:28px;padding:28px 0;border-bottom:1px solid var(--rule)}
+.partno{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--spot);margin-bottom:12px}
+.spec{border-top:1px solid var(--ink)}
+.spec div{display:flex;flex-direction:column;padding:6px 0;border-bottom:1px solid var(--rule)}
+.spec dt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.spec dd{font-family:var(--mono);font-size:12px;margin-top:1px}
+.entry h3{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.blurb{margin-top:10px;font-size:15px;max-width:58ch;color:#C7C4BC}
+
+/* Media containers. Ratios match the native screenshots so nothing is cropped hard:
+   .figure        16:9  — InRange (1920x1080) and Curl Zone (~5:3, minor side crop)
+   .figure-portrait 1:2 — Birds of a Feather (635x1257) */
+.figure-container{margin-top:16px}
+.figure{aspect-ratio:16/9;background:var(--paper-2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
+.figure img{width:100%;height:100%;object-fit:cover;display:block}
+
+.figure-grid-portrait{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:16px}
+.figure-portrait{aspect-ratio:1/2;background:var(--paper-2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
+.figure-portrait img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Tabbed image switcher — radios kept focusable (not display:none) so tabs work by keyboard */
+.figure-switcher{margin-top:16px}
+.figure-switcher input[type="radio"]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.fig-pane{display:none}
+
+#p1-f1:checked ~ .panes .pane-1,
+#p1-f2:checked ~ .panes .pane-2,
+#p1-f3:checked ~ .panes .pane-3,
+#p1-f4:checked ~ .panes .pane-4,
+#p2-f1:checked ~ .panes .pane-1,
+#p2-f2:checked ~ .panes .pane-2,
+#p2-f3:checked ~ .panes .pane-3{display:flex}
+
+.fig-tabs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.fig-tabs label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-soft);border:1px solid var(--rule);padding:4px 8px;cursor:pointer;user-select:none;transition:background .15s, color .15s, border-color .15s}
+.fig-tabs label:hover{border-color:var(--ink);color:var(--ink)}
+
+#p1-f1:checked ~ .fig-tabs label[for="p1-f1"],
+#p1-f2:checked ~ .fig-tabs label[for="p1-f2"],
+#p1-f3:checked ~ .fig-tabs label[for="p1-f3"],
+#p1-f4:checked ~ .fig-tabs label[for="p1-f4"],
+#p2-f1:checked ~ .fig-tabs label[for="p2-f1"],
+#p2-f2:checked ~ .fig-tabs label[for="p2-f2"],
+#p2-f3:checked ~ .fig-tabs label[for="p2-f3"]{border-color:var(--spot);color:var(--spot);background:rgba(224,89,47,0.08)}
+
+#p1-f1:focus-visible ~ .fig-tabs label[for="p1-f1"],
+#p1-f2:focus-visible ~ .fig-tabs label[for="p1-f2"],
+#p1-f3:focus-visible ~ .fig-tabs label[for="p1-f3"],
+#p1-f4:focus-visible ~ .fig-tabs label[for="p1-f4"],
+#p2-f1:focus-visible ~ .fig-tabs label[for="p2-f1"],
+#p2-f2:focus-visible ~ .fig-tabs label[for="p2-f2"],
+#p2-f3:focus-visible ~ .fig-tabs label[for="p2-f3"]{outline:2px solid var(--spot);outline-offset:2px}
+
+.links{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.links a{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--ink);padding:6px 12px;transition:background .15s,color .15s}
+.links a:hover{background:var(--ink);color:var(--paper)}
+.links a.spot{border-color:var(--spot);color:var(--spot)}
+.links a.spot:hover{background:var(--spot);color:var(--paper)}
+
+/* Grid layouts for secondary projects. Hairlines come from the cells themselves, not
+   from a gap over a tinted backdrop — otherwise an incomplete last row shows a solid
+   rule-coloured block where the missing cells would be. */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:18px;
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+.cell{background:var(--paper);padding:12px;transition:background .2s;
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  display:flex;flex-direction:column}
+.cell:hover{background:var(--paper-2)}
+
+/* Thumbnails — 16:9 to match the source screenshots */
+.thumb{aspect-ratio:16/9;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:.1em;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;display:block}
+
+/* Missing-image fallback: hatched plate with a mono label instead of a broken icon */
+.thumb.is-empty::before{content:attr(data-figure);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;
+  background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.025) 6px 12px)}
+
+/* Logos and other non-photographic art: fit the whole mark on the plate rather than
+   cover-cropping it to 16:9, which would cut the top and bottom off a square logo. */
+.thumb img.fit{object-fit:contain;padding:11%}
+
+/* Framing for sources that aren't natively 16:9, done with object-position so the
+   original files stay untouched:
+   ph1/ph2 — Phosphor frames are vertical short-form video; these bands hold the diagram
+   t3d     — skips the terminal's title bar at the top of the capture */
+.thumb img.crop-ph1{object-position:center 0%}
+.thumb img.crop-ph2{object-position:center 14%}
+.thumb img.crop-t3d{object-position:center 60%}
+
+/* Toasty Treats is a 9:20 phone capture. Cropped to a 16:9 band per frame:
+   frame 1 lands on the title sign, frame 2 on the campfire — both clear of the
+   dev-build overlay text at the top and bottom of the capture. */
+.thumb img.crop-tt-title{object-position:center 6%}
+.thumb img.crop-tt-play{object-position:center 70%}
+
+/* Auto-cycling multi-frame cards. The outgoing frame stays opaque underneath while
+   the incoming one fades in on top, so the crossfade never dips to the backdrop. */
+.thumb.multi{cursor:pointer}
+.thumb.multi img{opacity:0;transition:opacity .55s ease}
+.thumb.multi img:first-of-type{opacity:1}          /* no-JS: show the first frame */
+.thumb.multi.ready img{opacity:0;z-index:0}
+.thumb.multi.ready img.prev{opacity:1;z-index:1;transition:none}
+.thumb.multi.ready img.on{opacity:1;z-index:2}
+
+/* Frame indicator */
+.thumb-badge{
+  position:absolute;
+  bottom:6px;
+  right:6px;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-family:var(--mono);
+  font-size:8px;
+  letter-spacing:0.08em;
+  background:var(--paper);
+  color:var(--ink-soft);
+  border:1px solid var(--rule);
+  padding:3px 5px;
+  pointer-events:none;
+  z-index:5;
+  transition:border-color .2s, color .2s;
+}
+.thumb-badge .ticks{display:flex;gap:3px}
+.thumb-badge i{width:7px;height:2px;background:var(--rule);transition:background .3s}
+.thumb-badge i.on{background:var(--ink-soft)}
+.thumb.multi:hover .thumb-badge,
+.thumb.multi:focus-visible .thumb-badge{border-color:var(--spot);color:var(--spot)}
+.thumb.multi:hover .thumb-badge i.on,
+.thumb.multi:focus-visible .thumb-badge i.on{background:var(--spot)}
+
+.cell h4{font-size:15px;font-weight:500;margin-top:10px}
+.cell p{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:3px;margin-bottom:8px}
+
+/* Showcase experiments — fixed column count so the row always fills exactly */
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:620px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+
+.gh{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  text-decoration:none;color:var(--ink-soft);border:1px solid var(--rule);padding:3px 7px;transition:border-color .15s,color .15s}
+.gh:hover{border-color:var(--spot);color:var(--spot)}
+/* keep the source pill on the cell's bottom edge so rows share a baseline */
+.cell .gh{margin-top:auto;align-self:flex-start}
+
+/* Index of the remaining smaller projects — no figures, so a parts list rather than a grid */
+.subhead{display:flex;align-items:baseline;gap:12px;margin-top:34px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.subhead::after{content:"";flex:1;border-bottom:1px solid var(--rule)}
+.index{list-style:none;margin-top:10px;border-top:1px solid var(--ink)}
+/* the last column is a fixed width, not auto, so rows without a Source pill
+   (projects with no public repo) keep the same column alignment as the rest */
+.idx{display:grid;grid-template-columns:minmax(0,1.15fr) 128px minmax(0,2fr) 82px;gap:18px;align-items:baseline;
+  padding:9px 2px;border-bottom:1px solid var(--rule);transition:background .15s}
+.idx:hover{background:var(--paper-2)}
+.idx-name{font-size:15px}
+.idx-stack,.idx-desc{font-family:var(--mono);font-size:11px;color:var(--ink-soft)}
+.idx-stack{letter-spacing:.06em}
+.idx .gh{margin-top:0;justify-self:start}
+@media(max-width:720px){
+  .idx{grid-template-columns:minmax(0,1fr) auto;gap:3px 14px;padding:12px 2px}
+  .idx .gh{grid-row:1;grid-column:2}
+  .idx-stack{grid-row:2;grid-column:1}
+  .idx-desc{grid-row:3;grid-column:1/-1}
+}
+
+footer{margin-top:72px;border-top:2px solid var(--ink);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+footer a{text-decoration:none;border-bottom:1px solid var(--rule);color:var(--ink)}
+footer a:hover{border-color:var(--spot);color:var(--spot)}
+
+@media(max-width:720px){
+  .thesis,.entry{grid-template-columns:1fr;gap:22px}
+  .titleblock{grid-template-columns:1fr}
+  .docmeta{text-align:left}
+  .figure-grid-portrait{grid-template-columns:repeat(auto-fit, minmax(100px, 1fr))}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="titleblock">
+    <div>
+      <h1>Emil<br>Levin<span>.</span></h1>
+      <p class="role">Unity developer / interactive 3D</p>
+    </div>
+    <div class="docmeta">Doc <b>EL–PORTFOLIO</b><br>Rev <b>2026.08</b><br>Sections <b>03</b></div>
+  </header>
+
+  <section class="thesis">
+    <div>
+      <p class="lead">I build real-time 3D software that ships to real hardware.</p>
+      <p class="sub">Unity developer at Sozolabs on a commercial golf simulator running on in-bay kiosk hardware alongside iOS and Android — gameplay, shaders, UI and the tooling underneath.</p>
+    </div>
+    <div class="keyfacts">
+      <div class="kf"><span>Engine</span><span>Unity / C#</span></div>
+      <div class="kf"><span>Shipping since</span><span>2021</span></div>
+      <div class="kf"><span>Targets</span><span>Kiosk / iOS / Android</span></div>
+      <div class="kf"><span>Based</span><span>South Africa</span></div>
+    </div>
+  </section>
+
+  <!-- SELECTED WORK SECTION -->
+  <section class="sec">
+    <div class="sechead"><h2>Selected work</h2><span class="count">03 entries</span></div>
+
+    <!-- P-01: InRange Golf -->
+    <article class="entry">
+      <div>
+        <p class="partno">P–01</p>
+        <dl class="spec">
+          <div><dt>Engine</dt><dd>Unity</dd></div>
+          <div><dt>Platform</dt><dd>Kiosk / mobile</dd></div>
+          <div><dt>Role</dt><dd>Lead developer</dd></div>
+          <div><dt>Status</dt><dd>Shipped</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>InRange Golf</h3>
+        <p class="blurb">Commercial golf simulator on in-bay kiosk hardware. Lead developer on a new game title and on a large training system spanning much of the product. Also the single-player UI overhaul, camera system extensions, and an internal C# tool that simulates shots for testing.</p>
+        <p class="blurb">Shaders in ShaderGraph and hand-written HLSL. Balancing and design on the new title — a different shape to anything else in the product, where animation and polish carried most of the feel.</p>
+
+        <div class="figure-switcher">
+          <input type="radio" id="p1-f1" name="p1-group" checked>
+          <input type="radio" id="p1-f2" name="p1-group">
+          <input type="radio" id="p1-f3" name="p1-group">
+          <input type="radio" id="p1-f4" name="p1-group">
+
+          <div class="panes">
+            <div class="figure fig-pane pane-1">
+              <img src="assets/images/web/inrange-1.webp" alt="InRange Golf — in-bay kiosk gameplay" loading="lazy" decoding="async">
+            </div>
+            <div class="figure fig-pane pane-2">
+              <img src="assets/images/web/inrange-2.webp" alt="InRange Golf — shot view" loading="lazy" decoding="async">
+            </div>
+            <div class="figure fig-pane pane-3">
+              <img src="assets/images/web/inrange-3.webp" alt="InRange Golf — training system" loading="lazy" decoding="async">
+            </div>
+            <div class="figure fig-pane pane-4">
+              <img src="assets/images/web/inrange-4.webp" alt="InRange Golf — single-player UI" loading="lazy" decoding="async">
+            </div>
+          </div>
+
+          <div class="fig-tabs">
+            <label for="p1-f1">FIG 1.1</label>
+            <label for="p1-f2">FIG 1.2</label>
+            <label for="p1-f3">FIG 1.3</label>
+            <label for="p1-f4">FIG 1.4</label>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- P-02: Curl Zone -->
+    <article class="entry">
+      <div>
+        <p class="partno">P–02</p>
+        <dl class="spec">
+          <div><dt>Stack</dt><dd>Unity / .NET</dd></div>
+          <div><dt>Parts</dt><dd>Client + API</dd></div>
+          <div><dt>Role</dt><dd>Solo</dd></div>
+          <div><dt>Status</dt><dd>Prototype</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>Curl Zone</h3>
+        <p class="blurb">Dual-screen curling game backed by a .NET service handling bookings and scoring. Shot input is simulated; the work is in the client/service split and the game systems on top of it.</p>
+
+        <div class="figure-switcher">
+          <input type="radio" id="p2-f1" name="p2-group" checked>
+          <input type="radio" id="p2-f2" name="p2-group">
+          <input type="radio" id="p2-f3" name="p2-group">
+
+          <div class="panes">
+            <div class="figure fig-pane pane-1">
+              <img src="assets/images/web/curlzone-1.webp" alt="Curl Zone — dual-screen view" loading="lazy" decoding="async">
+            </div>
+            <div class="figure fig-pane pane-2">
+              <img src="assets/images/web/curlzone-2.webp" alt="Curl Zone — client UI" loading="lazy" decoding="async">
+            </div>
+            <div class="figure fig-pane pane-3">
+              <img src="assets/images/web/curlzone-3.webp" alt="Curl Zone — service API" loading="lazy" decoding="async">
+            </div>
+          </div>
+
+          <div class="fig-tabs">
+            <label for="p2-f1">FIG 2.1 — DUAL SCREEN</label>
+            <label for="p2-f2">FIG 2.2 — CLIENT UI</label>
+            <label for="p2-f3">FIG 2.3 — SERVICE API</label>
+          </div>
+        </div>
+
+        <div class="links">
+          <a href="https://github.com/ELevin125/curl-zone">Source</a>
+          <a href="https://github.com/ELevin125/curl-zone-api">API</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- P-03: Birds of a Feather -->
+    <article class="entry">
+      <div>
+        <p class="partno">P–03</p>
+        <dl class="spec">
+          <div><dt>Engine</dt><dd>Unity</dd></div>
+          <div><dt>Platform</dt><dd>Mobile</dd></div>
+          <div><dt>Role</dt><dd>Solo</dd></div>
+          <div><dt>Status</dt><dd>Playable</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>Birds of a Feather</h3>
+        <p class="blurb">A flock of birds, driven by a boids simulation, ignites crystals to trace constellations across a procedurally scattered landscape. Rules-based decoration placement keyed to camera distance and existing geometry.</p>
+
+        <div class="figure-grid-portrait">
+          <div class="figure-portrait">
+            <img src="assets/images/web/birds-1.webp" alt="Birds of a Feather — flocking birds over the landscape" loading="lazy" decoding="async">
+          </div>
+          <div class="figure-portrait">
+            <img src="assets/images/web/birds-2.webp" alt="Birds of a Feather — constellation forming" loading="lazy" decoding="async">
+          </div>
+          <div class="figure-portrait">
+            <img src="assets/images/web/birds-3.webp" alt="Birds of a Feather — scattered decoration" loading="lazy" decoding="async">
+          </div>
+        </div>
+
+        <div class="links"><a class="spot" href="#">Play</a><a href="#">Source</a></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- GAMES GRID -->
+  <section class="sec">
+    <div class="sechead"><h2>Games</h2><span class="count">07 entries</span></div>
+    <div class="grid">
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="TOASTY TREATS">
+          <img src="assets/images/web/toasty-treats-1.webp" alt="Toasty Treats — title screen" class="crop-tt-title" loading="lazy" decoding="async">
+          <img src="assets/images/web/toasty-treats-2.webp" alt="Toasty Treats — roasting a marshmallow" class="crop-tt-play" loading="lazy" decoding="async">
+        </div>
+        <h4>Toasty Treats</h4>
+        <p>2D mobile · Shaders</p>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="THE LITTLE WOODS">
+          <img src="assets/images/web/little-woods-1.webp" alt="The Little Woods — generated forest" loading="lazy" decoding="async">
+          <img src="assets/images/web/little-woods-2.webp" alt="The Little Woods — second view" loading="lazy" decoding="async">
+        </div>
+        <h4>The Little Woods</h4>
+        <p>2D · Procedural</p>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="KANE AND ABEL">
+          <img src="assets/images/web/kane-and-abel-1.webp" alt="Kane and Abel — race in progress" loading="lazy" decoding="async">
+          <img src="assets/images/web/kane-and-abel-2.webp" alt="Kane and Abel — second view" loading="lazy" decoding="async">
+          <img src="assets/images/web/kane-and-abel-3.webp" alt="Kane and Abel — agent raycasts" loading="lazy" decoding="async">
+          <img src="assets/images/web/kane-and-abel-4.webp" alt="Kane and Abel — training run" loading="lazy" decoding="async">
+        </div>
+        <h4>Kane and Abel</h4>
+        <p>Racing · ML-Agents</p>
+        <a class="gh" href="https://github.com/ELevin125/Kane-and-Abel-Rally-Racing-AI">Source ↗</a>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="TEST">
+          <img src="assets/images/web/test-1.webp" alt="TEST — hover racer" loading="lazy" decoding="async">
+          <img src="assets/images/web/test-2.webp" alt="TEST — second view" loading="lazy" decoding="async">
+          <img src="assets/images/web/test-3.webp" alt="TEST — third view" loading="lazy" decoding="async">
+        </div>
+        <h4>TEST</h4>
+        <p>Racing · Hover physics</p>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="BIT BASHER">
+          <img src="assets/images/web/bit-basher-1.webp" alt="Bit Basher — top-down swarm" loading="lazy" decoding="async">
+          <img src="assets/images/web/bit-basher-2.webp" alt="Bit Basher — swarm on the circuit board" loading="lazy" decoding="async">
+        </div>
+        <h4>Bit Basher</h4>
+        <p>Top-down · Swarm AI</p>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="KING OF THE HILL">
+          <img src="assets/images/web/king-of-the-hill-1.webp" alt="King of the Hill — physics level" loading="lazy" decoding="async">
+          <img src="assets/images/web/king-of-the-hill-2.webp" alt="King of the Hill — catapult shot in flight" loading="lazy" decoding="async">
+        </div>
+        <h4>King of the Hill</h4>
+        <p>2D · Physics</p>
+      </div>
+
+      <div class="cell">
+        <div class="thumb multi" data-figure="MEDIEVALVERSE">
+          <img src="assets/images/web/medievalverse-1.webp" alt="Medievalverse — castle overview from a balloon" loading="lazy" decoding="async">
+          <img src="assets/images/web/medievalverse-2.webp" alt="Medievalverse — strategy desk" loading="lazy" decoding="async">
+          <img src="assets/images/web/medievalverse-4.webp" alt="Medievalverse — village noticeboard" loading="lazy" decoding="async">
+        </div>
+        <h4>Medievalverse</h4>
+        <p>Virtual world · Unity</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS & EXPERIMENTS -->
+  <section class="sec">
+    <div class="sechead"><h2>Tools &amp; experiments</h2><span class="count">13 entries</span></div>
+
+    <div class="grid grid-4">
+      <div class="cell">
+        <div class="thumb multi" data-figure="PHOSPHOR">
+          <img src="assets/images/web/phosphor-1.webp" alt="Phosphor — rendered explainer frame showing a rotation axis around a wireframe cube" class="crop-ph1" loading="lazy" decoding="async">
+          <img src="assets/images/web/phosphor-2.webp" alt="Phosphor — rendered explainer frame comparing rotation angles" class="crop-ph2" loading="lazy" decoding="async">
+        </div>
+        <h4>Phosphor</h4><p>TypeScript · Remotion</p>
+        <a class="gh" href="https://github.com/ELevin125/phosphor">Source ↗</a>
+      </div>
+      <div class="cell">
+        <div class="thumb" data-figure="TERMINAL 3D">
+          <img src="assets/images/web/terminal-3d-1.webp" alt="Terminal 3D — a scene rendered as ASCII characters in a terminal" class="crop-t3d" loading="lazy" decoding="async">
+        </div>
+        <h4>Terminal 3D</h4><p>C# · ASCII renderer</p>
+        <a class="gh" href="https://github.com/ELevin125/terminal-3d">Source ↗</a>
+      </div>
+      <div class="cell">
+        <div class="thumb" data-figure="TERRAIN GENERATOR">
+          <img src="assets/images/web/terrain-generator-1.webp" alt="Terrain generator — a procedurally generated heightmap mesh" loading="lazy" decoding="async">
+        </div>
+        <h4>Terrain generator</h4><p>Unity · Procedural</p>
+      </div>
+      <div class="cell">
+        <div class="thumb multi" data-figure="FRIED CHICKEN SCRIPT">
+          <img src="assets/images/web/fried-chicken-script-1.webp" alt="Fried Chicken Script — project logo" class="fit" loading="lazy" decoding="async">
+          <img src="assets/images/web/fried-chicken-script-2.webp" alt="Fried Chicken Script — a script computing pi, using the language's themed keywords" loading="lazy" decoding="async">
+        </div>
+        <h4>Fried Chicken Script</h4><p>C# · Parser + interpreter</p>
+        <a class="gh" href="https://github.com/ELevin125/fried-chicken-script">Source ↗</a>
+      </div>
+    </div>
+
+    <div class="subhead"><span>Index</span></div>
+    <ul class="index">
+      <li class="idx">
+        <span class="idx-name">nyaudio-switcher</span>
+        <span class="idx-stack">JavaScript</span>
+        <span class="idx-desc">GNOME Shell extension — audio-output switcher</span>
+        <a class="gh" href="https://github.com/ELevin125/nyaudio-switcher">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Metaballs lava lamp</span>
+        <span class="idx-stack">JavaScript · p5</span>
+        <span class="idx-desc">Implicit surfaces rendered in real time</span>
+        <a class="gh" href="https://github.com/ELevin125/metaballs-lava-lamp">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Wireframe engine</span>
+        <span class="idx-stack">JavaScript</span>
+        <span class="idx-desc">3D projection and wireframe rendering from scratch</span>
+        <a class="gh" href="https://github.com/ELevin125/simple-wireframe-engine">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Wave Whisperer</span>
+        <span class="idx-stack">Python</span>
+        <span class="idx-desc">Least-significant-bit steganography in WAV files</span>
+        <a class="gh" href="https://github.com/ELevin125/wave-whisperer">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Add-On Transpiler</span>
+        <span class="idx-stack">Python</span>
+        <span class="idx-desc">Modding API transpiler</span>
+      </li>
+      <li class="idx">
+        <span class="idx-name">8-Line Snake</span>
+        <span class="idx-stack">JavaScript</span>
+        <span class="idx-desc">Playable Snake in eight lines of code</span>
+        <a class="gh" href="https://github.com/ELevin125/8-line-snake">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Renamify</span>
+        <span class="idx-stack">Python</span>
+        <span class="idx-desc">Bulk file renaming</span>
+        <a class="gh" href="https://github.com/ELevin125/Renamify">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Sentiment prediction</span>
+        <span class="idx-stack">Python · Jupyter</span>
+        <span class="idx-desc">Sentiment classification with neural networks</span>
+        <a class="gh" href="https://github.com/ELevin125/Sentiment-Prediction-using-Neural-Networks">Source ↗</a>
+      </li>
+      <li class="idx">
+        <span class="idx-name">Product listing categorisation</span>
+        <span class="idx-stack">Python · Jupyter</span>
+        <span class="idx-desc">Automated categorisation of product listings</span>
+        <a class="gh" href="https://github.com/ELevin125/Automated-Categorisation-of-Product-Listings">Source ↗</a>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    <span>Emil Levin — rev 2026.08</span>
+    <span><a href="https://github.com/ELevin125">GitHub</a> &nbsp; <a href="#">itch.io</a> &nbsp; <a href="#">LinkedIn</a> &nbsp; <a href="mailto:emil@sozolabs.com">Email</a></span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* Drop images that fail to load so the hatched .thumb placeholder shows through
+     instead of a broken-image icon. */
+  document.querySelectorAll('.thumb img').forEach(img => {
+    const drop = () => {
+      const thumb = img.parentElement;
+      img.remove();
+      if (thumb && !thumb.querySelector('img')) thumb.classList.add('is-empty');
+    };
+    img.addEventListener('error', drop);
+    if (img.complete && img.naturalWidth === 0) drop();
+  });
+
+  const TICK = 800;           // ms per tick of the shared clock
+  const TICKS_PER_FRAME = 4;  // advance every 3.2s
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cards = [];
+
+  const observer = 'IntersectionObserver' in window
+    ? new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.target._card) e.target._card.visible = e.isIntersecting;
+        });
+      }, { threshold: 0.25 })
+    : null;
+
+  document.querySelectorAll('.thumb.multi').forEach((thumb, cardIndex) => {
+    const images = Array.from(thumb.querySelectorAll('img'));
+    if (images.length <= 1) return;
+
+    const count = images.length;
+    const pad = n => String(n).padStart(2, '0');
+
+    const badge = document.createElement('span');
+    badge.className = 'thumb-badge';
+    const ticks = document.createElement('span');
+    ticks.className = 'ticks';
+    const marks = images.map(() => ticks.appendChild(document.createElement('i')));
+    const label = document.createElement('b');
+    badge.append(ticks, label);
+    thumb.appendChild(badge);
+
+    const card = {
+      index: 0,
+      phase: cardIndex % TICKS_PER_FRAME,   // stagger so cards don't flip in unison
+      visible: false,
+      held: false,                          // hovered or focused
+      show(i) {
+        const from = card.index;
+        card.index = (i + count) % count;
+        images.forEach((img, n) => {
+          img.classList.toggle('on', n === card.index);
+          img.classList.toggle('prev', n === from && n !== card.index);
+        });
+        marks.forEach((m, n) => m.classList.toggle('on', n === card.index));
+        label.textContent = pad(card.index + 1) + '/' + pad(count);
+        thumb.setAttribute('aria-label', images[card.index].alt +
+          ' (frame ' + (card.index + 1) + ' of ' + count + ')');
+      }
+    };
+
+    thumb.classList.add('ready');
+    thumb.tabIndex = 0;
+    thumb.setAttribute('role', 'button');
+    card.show(0);
+
+    thumb.addEventListener('click', () => card.show(card.index + 1));
+    thumb.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault(); card.show(card.index + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault(); card.show(card.index - 1);
+      }
+    });
+
+    // Pause while the viewer is looking at a specific frame.
+    ['mouseenter', 'focus'].forEach(ev =>
+      thumb.addEventListener(ev, () => { card.held = true; }));
+    ['mouseleave', 'blur'].forEach(ev =>
+      thumb.addEventListener(ev, () => { card.held = false; }));
+
+    cards.push(card);
+    if (observer) {
+      thumb._card = card;
+      observer.observe(thumb);
+    } else {
+      card.visible = true;
+    }
+  });
+
+  if (!reduced && cards.length) {
+    let tick = 0;
+    setInterval(() => {
+      if (document.hidden) return;
+      tick++;
+      cards.forEach(card => {
+        if (!card.visible || card.held) return;
+        if ((tick + card.phase) % TICKS_PER_FRAME === 0) card.show(card.index + 1);
+      });
+    }, TICK);
+  }
+})();
+</script>
+
+</body>
+</html>
