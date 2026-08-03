@@ -12,3 +12,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Fonts downloaded by tools/render-og-card.py
+.cache/
