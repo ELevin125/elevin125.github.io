@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Emil Levin — Unity developer</title>
 <meta name="description" content="Emil Levin — Unity developer building real-time 3D software for kiosk, iOS and Android. Gameplay, shaders, UI and tooling.">
-<meta name="theme-color" content="#131416">
+<meta name="theme-color" content="#DFDCD2">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Emil Levin — Unity developer">
 <meta property="og:description" content="Real-time 3D software that ships to real hardware. Gameplay, shaders, UI and tooling.">
@@ -14,11 +14,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Set the theme before first paint so a stored dark preference never flashes light.
+     Light is the default when nothing is stored. -->
+<script>
+(function(){
+  var t = 'light';
+  try { var s = localStorage.getItem('theme'); if (s === 'dark' || s === 'light') t = s; } catch (e) {}
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <style>
+/* Light is the default palette; dark is opt-in via the header toggle (data-theme on <html>) */
 :root{
+  color-scheme:light;
+  --paper:#DFDCD2; --paper-2:#D5D1C6; --ink:#191A1C; --ink-soft:#5A5B58;
+  --spot:#BF3B1E; --rule:#B4B0A4;
+  --body:#2E2F30;                       /* blurb text — a touch softer than --ink */
+  --bar:#CBC6B8;                        /* figure title bar — a step deeper than --paper-2 */
+  --spot-tint:rgba(191,59,30,.08);      /* active figure tab */
+  --hatch:rgba(0,0,0,.045);             /* missing-image plate */
+  --sans:'Zen Kaku Gothic New',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
   --paper:#131416; --paper-2:#1C1E21; --ink:#E4E1D8; --ink-soft:#8B8C88;
   --spot:#E0592F; --rule:#33363A;
-  --sans:'Zen Kaku Gothic New',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --body:#C7C4BC;
+  --bar:#24272B;
+  --spot-tint:rgba(224,89,47,.08);
+  --hatch:rgba(255,255,255,.025);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
@@ -30,8 +54,20 @@ a{color:inherit}
 .titleblock h1{font-size:clamp(38px,7vw,66px);font-weight:700;letter-spacing:-.03em;line-height:.94}
 .titleblock h1 span{color:var(--spot)}
 .role{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-top:12px;color:var(--ink-soft)}
+.headmeta{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .docmeta{font-family:var(--mono);font-size:11px;line-height:1.9;text-align:right;color:var(--ink-soft)}
 .docmeta b{color:var(--ink);font-weight:500}
+
+/* Theme toggle — a switch plate in the same mono register as the rest of the chrome,
+   carrying the spot colour so it reads as the one control on the page */
+.theme-toggle{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--spot);background:var(--spot-tint);
+  border:1px solid var(--spot);padding:5px 9px;cursor:pointer;transition:background .15s,color .15s}
+.theme-toggle:hover{background:var(--spot);color:var(--paper)}
+.theme-toggle .sw{width:22px;height:10px;border:1px solid currentColor;position:relative;flex:none}
+.theme-toggle .sw::after{content:"";position:absolute;top:1px;left:1px;width:8px;height:6px;
+  background:currentColor;transition:transform .2s}
+:root[data-theme="dark"] .theme-toggle .sw::after{transform:translateX(10px)}
 
 .thesis{padding:34px 0 40px;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:40px;align-items:start}
 .lead{font-size:clamp(19px,2.4vw,25px);line-height:1.4;letter-spacing:-.01em;max-width:26ch}
@@ -52,18 +88,31 @@ a{color:inherit}
 .spec dt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
 .spec dd{font-family:var(--mono);font-size:12px;margin-top:1px}
 .entry h3{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
-.blurb{margin-top:10px;font-size:15px;max-width:58ch;color:#C7C4BC}
+.blurb{margin-top:10px;font-size:15px;max-width:58ch;color:var(--body)}
 
 /* Media containers. Ratios match the native screenshots so nothing is cropped hard:
    .figure        16:9  — InRange (1920x1080) and Curl Zone (~5:3, minor side crop)
-   .figure-portrait 1:2 — Birds of a Feather (635x1257) */
+   .figure-portrait 1:2 — Birds of a Feather (635x1257)
+
+   Screenshots are their own little worlds — mostly dark, mostly busy — so each one sits on
+   a plate with a hard ink border and an inverted title bar. The bar reads as a caption in
+   both themes and keeps the artwork from floating loose on the page. */
+.plate{border:1px solid var(--ink);background:var(--paper-2)}
+.plate-bar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  background:var(--bar);color:var(--ink);border-bottom:1px solid var(--ink);
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px}
+.plate-id{flex:none;font-weight:500}
+.plate-name{color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .figure-container{margin-top:16px}
-.figure{aspect-ratio:16/9;background:var(--paper-2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
+.figure{aspect-ratio:16/9;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
 .figure img{width:100%;height:100%;object-fit:cover;display:block}
 
 .figure-grid-portrait{display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-top:16px}
-.figure-portrait{aspect-ratio:1/2;background:var(--paper-2);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
+.figure-portrait{aspect-ratio:1/2;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-soft);overflow:hidden}
 .figure-portrait img{width:100%;height:100%;object-fit:cover;display:block}
+/* the portrait plates sit three-up, so the bar carries the number only */
+.figure-grid-portrait .plate-bar{padding:4px 7px;justify-content:center;letter-spacing:.1em}
 
 /* Tabbed image switcher — radios kept focusable (not display:none) so tabs work by keyboard */
 .figure-switcher{margin-top:16px}
@@ -76,7 +125,7 @@ a{color:inherit}
 #p1-f4:checked ~ .panes .pane-4,
 #p2-f1:checked ~ .panes .pane-1,
 #p2-f2:checked ~ .panes .pane-2,
-#p2-f3:checked ~ .panes .pane-3{display:flex}
+#p2-f3:checked ~ .panes .pane-3{display:block}
 
 .fig-tabs{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .fig-tabs label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-soft);border:1px solid var(--rule);padding:4px 8px;cursor:pointer;user-select:none;transition:background .15s, color .15s, border-color .15s}
@@ -88,7 +137,7 @@ a{color:inherit}
 #p1-f4:checked ~ .fig-tabs label[for="p1-f4"],
 #p2-f1:checked ~ .fig-tabs label[for="p2-f1"],
 #p2-f2:checked ~ .fig-tabs label[for="p2-f2"],
-#p2-f3:checked ~ .fig-tabs label[for="p2-f3"]{border-color:var(--spot);color:var(--spot);background:rgba(224,89,47,0.08)}
+#p2-f3:checked ~ .fig-tabs label[for="p2-f3"]{border-color:var(--spot);color:var(--spot);background:var(--spot-tint)}
 
 #p1-f1:focus-visible ~ .fig-tabs label[for="p1-f1"],
 #p1-f2:focus-visible ~ .fig-tabs label[for="p1-f2"],
@@ -114,13 +163,14 @@ a{color:inherit}
   display:flex;flex-direction:column}
 .cell:hover{background:var(--paper-2)}
 
-/* Thumbnails — 16:9 to match the source screenshots */
-.thumb{aspect-ratio:16/9;background:var(--paper-2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:.1em;overflow:hidden;position:relative}
+/* Thumbnails — 16:9 to match the source screenshots. Bordered like the big plates, but with
+   a hairline rather than a title bar; eleven inverted bars in a row would be too loud. */
+.thumb{aspect-ratio:16/9;background:var(--paper-2);border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:var(--ink-soft);letter-spacing:.1em;overflow:hidden;position:relative}
 .thumb img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;display:block}
 
 /* Missing-image fallback: hatched plate with a mono label instead of a broken icon */
 .thumb.is-empty::before{content:attr(data-figure);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;
-  background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.025) 6px 12px)}
+  background:repeating-linear-gradient(135deg,transparent 0 6px,var(--hatch) 6px 12px)}
 
 /* Logos and other non-photographic art: fit the whole mark on the plate rather than
    cover-cropping it to 16:9, which would cut the top and bottom off a square logo. */
@@ -220,6 +270,7 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
   .thesis,.entry{grid-template-columns:1fr;gap:22px}
   .titleblock{grid-template-columns:1fr}
   .docmeta{text-align:left}
+  .headmeta{align-items:flex-start}
   .figure-grid-portrait{grid-template-columns:repeat(auto-fit, minmax(100px, 1fr))}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -233,7 +284,12 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
       <h1>Emil<br>Levin<span>.</span></h1>
       <p class="role">Unity developer / interactive 3D</p>
     </div>
-    <div class="docmeta">Doc <b>EL–PORTFOLIO</b><br>Rev <b>2026.08</b><br>Sections <b>03</b></div>
+    <div class="headmeta">
+      <div class="docmeta">Doc <b>EL–PORTFOLIO</b><br>Rev <b>2026.08</b><br>Sections <b>03</b></div>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">
+        <span class="sw" aria-hidden="true"></span><span id="theme-label">Light</span>
+      </button>
+    </div>
   </header>
 
   <section class="thesis">
@@ -276,18 +332,30 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
           <input type="radio" id="p1-f4" name="p1-group">
 
           <div class="panes">
-            <div class="figure fig-pane pane-1">
-              <img src="assets/images/web/inrange-1.webp" alt="InRange Golf — in-bay kiosk gameplay" loading="lazy" decoding="async">
-            </div>
-            <div class="figure fig-pane pane-2">
-              <img src="assets/images/web/inrange-2.webp" alt="InRange Golf — shot view" loading="lazy" decoding="async">
-            </div>
-            <div class="figure fig-pane pane-3">
-              <img src="assets/images/web/inrange-3.webp" alt="InRange Golf — training system" loading="lazy" decoding="async">
-            </div>
-            <div class="figure fig-pane pane-4">
-              <img src="assets/images/web/inrange-4.webp" alt="InRange Golf — single-player UI" loading="lazy" decoding="async">
-            </div>
+            <figure class="plate fig-pane pane-1">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 1.1</span><span class="plate-name">In-bay kiosk</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/inrange-1.webp" alt="InRange Golf — in-bay kiosk gameplay" loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <figure class="plate fig-pane pane-2">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 1.2</span><span class="plate-name">Shot view</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/inrange-2.webp" alt="InRange Golf — shot view" loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <figure class="plate fig-pane pane-3">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 1.3</span><span class="plate-name">Training system</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/inrange-3.webp" alt="InRange Golf — training system" loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <figure class="plate fig-pane pane-4">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 1.4</span><span class="plate-name">Single-player UI</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/inrange-4.webp" alt="InRange Golf — single-player UI" loading="lazy" decoding="async">
+              </div>
+            </figure>
           </div>
 
           <div class="fig-tabs">
@@ -321,21 +389,30 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
           <input type="radio" id="p2-f3" name="p2-group">
 
           <div class="panes">
-            <div class="figure fig-pane pane-1">
-              <img src="assets/images/web/curlzone-1.webp" alt="Curl Zone — dual-screen view" loading="lazy" decoding="async">
-            </div>
-            <div class="figure fig-pane pane-2">
-              <img src="assets/images/web/curlzone-2.webp" alt="Curl Zone — client UI" loading="lazy" decoding="async">
-            </div>
-            <div class="figure fig-pane pane-3">
-              <img src="assets/images/web/curlzone-3.webp" alt="Curl Zone — service API" loading="lazy" decoding="async">
-            </div>
+            <figure class="plate fig-pane pane-1">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 2.1</span><span class="plate-name">Dual screen</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/curlzone-1.webp" alt="Curl Zone — dual-screen view" loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <figure class="plate fig-pane pane-2">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 2.2</span><span class="plate-name">Client UI</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/curlzone-2.webp" alt="Curl Zone — client UI" loading="lazy" decoding="async">
+              </div>
+            </figure>
+            <figure class="plate fig-pane pane-3">
+              <figcaption class="plate-bar"><span class="plate-id">Fig 2.3</span><span class="plate-name">Service API</span></figcaption>
+              <div class="figure">
+                <img src="assets/images/web/curlzone-3.webp" alt="Curl Zone — service API" loading="lazy" decoding="async">
+              </div>
+            </figure>
           </div>
 
           <div class="fig-tabs">
-            <label for="p2-f1">FIG 2.1 — DUAL SCREEN</label>
-            <label for="p2-f2">FIG 2.2 — CLIENT UI</label>
-            <label for="p2-f3">FIG 2.3 — SERVICE API</label>
+            <label for="p2-f1">FIG 2.1</label>
+            <label for="p2-f2">FIG 2.2</label>
+            <label for="p2-f3">FIG 2.3</label>
           </div>
         </div>
 
@@ -362,15 +439,24 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
         <p class="blurb">A flock of birds, driven by a boids simulation, ignites crystals to trace constellations across a procedurally scattered landscape. Rules-based decoration placement keyed to camera distance and existing geometry.</p>
 
         <div class="figure-grid-portrait">
-          <div class="figure-portrait">
-            <img src="assets/images/web/birds-1.webp" alt="Birds of a Feather — flocking birds over the landscape" loading="lazy" decoding="async">
-          </div>
-          <div class="figure-portrait">
-            <img src="assets/images/web/birds-2.webp" alt="Birds of a Feather — constellation forming" loading="lazy" decoding="async">
-          </div>
-          <div class="figure-portrait">
-            <img src="assets/images/web/birds-3.webp" alt="Birds of a Feather — scattered decoration" loading="lazy" decoding="async">
-          </div>
+          <figure class="plate">
+            <figcaption class="plate-bar"><span class="plate-id">Fig 3.1</span></figcaption>
+            <div class="figure-portrait">
+              <img src="assets/images/web/birds-1.webp" alt="Birds of a Feather — flocking birds over the landscape" loading="lazy" decoding="async">
+            </div>
+          </figure>
+          <figure class="plate">
+            <figcaption class="plate-bar"><span class="plate-id">Fig 3.2</span></figcaption>
+            <div class="figure-portrait">
+              <img src="assets/images/web/birds-2.webp" alt="Birds of a Feather — constellation forming" loading="lazy" decoding="async">
+            </div>
+          </figure>
+          <figure class="plate">
+            <figcaption class="plate-bar"><span class="plate-id">Fig 3.3</span></figcaption>
+            <div class="figure-portrait">
+              <img src="assets/images/web/birds-3.webp" alt="Birds of a Feather — scattered decoration" loading="lazy" decoding="async">
+            </div>
+          </figure>
         </div>
 
         <div class="links"><a class="spot" href="#">Play</a><a href="#">Source</a></div>
@@ -557,6 +643,33 @@ footer a:hover{border-color:var(--spot);color:var(--spot)}
 <script>
 (function(){
   'use strict';
+
+  /* Theme toggle. The stored value is applied by the inline script in <head>; this only
+     wires the button and keeps its label, pressed state and the browser chrome in sync. */
+  (function(){
+    const root = document.documentElement;
+    const btn = document.getElementById('theme-toggle');
+    const label = document.getElementById('theme-label');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const CHROME = { light: '#DFDCD2', dark: '#131416' };
+    if (!btn) return;
+
+    const apply = theme => {
+      root.setAttribute('data-theme', theme);
+      label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+      btn.setAttribute('aria-pressed', theme === 'dark');
+      btn.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode');
+      if (meta) meta.setAttribute('content', CHROME[theme]);
+    };
+
+    apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      apply(next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+    });
+  })();
 
   /* Drop images that fail to load so the hatched .thumb placeholder shows through
      instead of a broken-image icon. */
