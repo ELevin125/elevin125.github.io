@@ -1,6 +1,6 @@
 # Emil Levin — Personal Portfolio
 
-Live site: [emil-levin.github.io](https://emil-levin.github.io)
+Live site: [elevin125.github.io](https://elevin125.github.io)
 
 Personal portfolio and technical showcase for real-time 3D software, Unity projects, and C# tooling. Designed with a custom dark "service manual" aesthetic.
 
